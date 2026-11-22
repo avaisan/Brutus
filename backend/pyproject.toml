@@ -10,40 +10,46 @@ dependencies = [
     "pillow>=13.0.0",
     "pydantic>=2.14.4",
     "pydantic-settings>=2.16.3",
-    "python-dotenv>=1.2.4",
     "python-json-logger>=4.2.0",
     "python-multipart>=0.0.34",
     "uvicorn[standard]>=0.54.0",
 ]
 
+[project.scripts]
+brutus-analyze = "brutus.cli:main"
+
 [dependency-groups]
 dev = [
     "boto3-stubs[polly,rekognition]>=1.44.9",
-    "httpx>=0.28.1",
+    "httpx2>=2.16.2",
     "mypy>=2.4.1",
     "pytest>=9.2.0",
-    "pytest-asyncio>=1.5.0",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.6",
     "taskipy>=1.14.1",
 ]
 
-[tool.uv]
-package = false
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "brutus"
 
 [tool.taskipy.tasks]
-start = "uvicorn api:app --host 0.0.0.0 --port 8000"
-dev = "uvicorn api:app --host 127.0.0.1 --port 8000 --reload"
-test = "pytest -v"
+start = "uvicorn brutus.api:create_app --factory --host 0.0.0.0 --port 8000"
+dev = "uvicorn brutus.api:create_app --factory --host 127.0.0.1 --port 8000 --reload"
+test = "pytest -m 'not integration'"
+test-integration = "pytest -m integration"
 lint = "ruff check . && ruff format --check ."
 format = "ruff format . && ruff check --fix ."
-check = "mypy ."
+check = "mypy src tests"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--strict-markers"
 markers = [
-    "integration: calls real AWS services",
-    "unit: fast tests without external services",
+    "integration: calls real AWS services (needs AWS SSO login)",
 ]
 
 [tool.mypy]
