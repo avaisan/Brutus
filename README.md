@@ -119,6 +119,24 @@ brutus/
 ```
 Each service is its own uv project, with its own `pyproject.toml`, `uv.lock` and `.env`.
 
+### Opinions on some choices
+#### Backend folder structure: functional core, imperative shell
+The backend used to be a mix of Python files: a FastAPI app in `api.py`, and classes that both called AWS and handled the results. One class took care of calling Rekognition, interpreting what came back, deciding who is who and drawing the boxes. That made it hard to see why a count was wrong, and it called AWS several times for the same picture.
+
+The backend is now split by *what touches the outside world*, not by the layers of a typical web app.
+- `brutus/vision/` is the core. It is immutable data (frozen pydantic models) plus small pure functions: geometry, reading Rekognition responses, combining people with faces, removing duplicate objects, and drawing. Given the same input they always return the same output, and the tests need no AWS, no files and no mocks.
+- The shell is a handful of modules that do I/O: `pipeline.py` calls Rekognition, `store.py` reads and writes files, `speech.py` calls Polly, and `api.py` and `cli.py` are the entry points. AWS clients are passed in as parameters, so tests and the CLI can supply their own.
+
+There are [at least two common project templates for FastAPI projects](https://medium.com/@amirm.lavasani/how-to-structure-your-fastapi-projects-0219a6600a8f), and this still uses neither. Routes, services and repositories pay off with a database and many endpoints. Brutus has six endpoints and no database. The split that matters here is pure versus impure, because that is what makes the counting rules testable.
+
+My earlier argument still holds: if I swapped Rekognition for another image recognition API or an esp32cam, I would rewrite `pipeline.py` and `parse.py` anyway. The rest of the core (people, objects, annotate) would stay as it is, because it only works on Brutus' own models.
+
+#### Each service has its own small logging setup
+The copy-pasted `logging_utils.py` is gone. The backend configures JSON logging once in `log.py`. The Pi client uses plain `logging.basicConfig`, and the frontend relies on uvicorn's logging. I still avoid a shared package between the services, for the same reason as before: I haven't decided whether the frontend and backend stay on the Pi, move to another local computer, or go to the cloud. Three independent uv projects can be deployed anywhere without dragging a shared library along.
+
+#### Frontend is server-rendered, without a JavaScript framework
+ReactPy let me write the UI in Python. Its last stable release no longer works with current FastAPI, and version 2.0 is still in beta. The frontend is now one FastAPI app with two Jinja2 templates. htmx refreshes the results panel every few seconds, and the formatting lives in pure Python functions (`view.py`). It is still in Python and still small, and there is nothing to build or bundle. The page only reads stored results, so refreshing it never costs anything on AWS.
+
 ## Installation
 
 ### Hardware prerequisites
