@@ -1,30 +1,42 @@
 # B.R.U.T.U.S.
 
 ## Introduction
-Brutus is an artificial intelligence robot built on top of AWS machine learning services, Raspberry PI and related machinery. The project is coded in Python.
+Brutus is an artificial intelligence robot built on top of AWS machine learning services, Raspberry Pi and related machinery. The project is coded in Python 3.15.
 
 [![Brutus introduction](https://img.youtube.com/vi/4MI_6AYFU6Y/0.jpg)](https://www.youtube.com/watch?v=4MI_6AYFU6Y)
 
-This project includes a Raspberry Pi client, API backend interface created with [FastAPI](https://fastapi.tiangolo.com), and frontend built with [ReactPy](https://reactpy.dev/docs/index.html).  Backend and frontend are served via [uvicorn](https://www.uvicorn.org) web servers, which you can access via browser on your local network.
+The project has three services:
+- a Raspberry Pi terminal client;
+- a backend API built with [FastAPI](https://fastapi.tiangolo.com);
+- a frontend rendered with [Jinja2](https://jinja.palletsprojects.com) and refreshed with [htmx](https://htmx.org).
 
-[Poetry](https://python-poetry.org) is used for dependency management and packaging. [Precommit framework](https://pre-commit.com) is used to check code formatting, linting etc. prior to committing changes to repository.
+The backend and frontend are served by [uvicorn](https://www.uvicorn.org), and you can open the frontend in a browser on your local network.
+
+[uv](https://docs.astral.sh/uv/) manages Python and the dependencies. [Ruff](https://docs.astral.sh/ruff/) lints and formats the code, and [mypy](https://mypy-lang.org) type-checks it in strict mode. The [pre-commit framework](https://pre-commit.com) runs the checks before each commit.
 
 <img src="./docs/brutus-desk.jpg" alt="Brutus at work desk" width="300"/>
 
 ## Features
 ### Now
-- **Image recognition:** [Recognise objects](https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html) in an image, [analyze people and faces](https://docs.aws.amazon.com/rekognition/latest/dg/faces.html), and do [facial recognition](https://docs.aws.amazon.com/rekognition/latest/dg/collections.html) given that reference face image is available.
-<img src="./docs/image-recognition.jpg" alt="Label detection" width="600"/>
+- **Image recognition:** take a picture, then:
+  - [recognise objects and animals](https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html);
+  - [count and box people and faces](https://docs.aws.amazon.com/rekognition/latest/dg/faces.html);
+  - [recognise known people](https://docs.aws.amazon.com/rekognition/latest/dg/faces-comparefaces.html) from reference photos.
 
-- **Speech generation:** [Brutus can speak](https://docs.aws.amazon.com/polly/latest/dg/synthesize-example.html) whetever (English) text is given to it.
+  Everyone in the picture is counted and boxed once, whether or not their face is visible. There are three levels of detail:
+  - `basic`: counts and boxes;
+  - `standard` (default): adds names of known people and boxes for objects;
+  - `detailed`: adds face attributes such as age range, emotion and glasses.
+
+  <img src="./docs/image-recognition.jpg" alt="Label detection" width="600"/>
+
+- **Speech generation:** [Brutus can speak](https://docs.aws.amazon.com/polly/latest/dg/synthesize-example.html) whatever (English) text is given to it.
 
 ### Upcoming
-- **Weather detection:** Get data from [RuuviTag](https://github.com/ttu/ruuvitag-sensor) to see room temperature, humidity and air pressure.
-- **Servo motors:** Utilize servo motors via Arduino integration, giving Brutus arm movement.
-- **Voice commands:** Call Brutus' features via Amazon Alexa.
-- **Discussion mode:** Utilize Amazon Lex and AWS Bedrock to return poems or summaries of image analysis results, or discuss philosophy with Brutus.
-
-
+- **Weather detection:** get room temperature, humidity and air pressure from a [RuuviTag](https://github.com/ttu/ruuvitag-sensor).
+- **Servo motors:** give Brutus arm movement with servo motors through an Arduino.
+- **Voice commands:** call Brutus' features through Amazon Alexa.
+- **Discussion mode:** use Amazon Lex and AWS Bedrock to return poems or summaries of image analysis results, or to discuss philosophy with Brutus.
 
 ## Architecture
 ### High-level architecture
@@ -32,219 +44,166 @@ This project includes a Raspberry Pi client, API backend interface created with 
 *Have a robot that can take pictures, analyze them and present results to the audience. The robot should be able to speak and listen to commands. Software should be modular and easy to extend with new features.*
 
 ![High-level architecture](./docs/architecture-high-level.png)
+
 #### Implementation
-Backend is built with FastAPI and it uses Python classes to call AWS services. Frontend is built with ReactPY and it uses hooks to call backend.  Raspberry Pi client is a terminal interface for commanding backend.
-
-This separation allows for adding new features to backend or adding new frontend components more flexibly. For example, if we wanted to add a new feature to Brutus, we could add a new Python class to backend, add a new API endpoint to FastAPI, and add a new React component to frontend. This way, we can keep the existing features intact and only add new features.
-
-Also if we wanted to host Brutus in the cloud, we could move backend and frontend to a cloud server and keep Raspberry Pi client running on a local computer. This way, we could access "Brutus' brain" from anywhere in the world.
-
-- **Raspberry Pi Client**: Terminal interface for commanding backend, e.g. take pictures or produce audio.
-- **API**: Wrapper for backend functionalities that allows for adding new functionalities or changing backend provider more flexibly. FastAPI implementation using OpenAPI docs and attempts to follow API design best practices with endpoint naming at least.
-- **Backend**: Image recognition, speech generation, ... that are exposed to frontend and client via API. Implemented by Python classes using botocore to communicate with AWS services.
-- **Frontend**: Presentation layer for audience to see image analysis details. A ReactPY frontend using hooks to call FastAPI backend.
-
-### Software components
-![Software components](./docs/sw-components.png)
-
+- **Raspberry Pi client:** a terminal menu that takes pictures, uploads them and plays audio. After each picture it prints what Brutus sees, for example *"I see 2 people: Kirk and 1 unknown person, 1 dog, 2 chairs."*
+- **Backend:** analyzes each uploaded picture **once** and stores the result (`analysis.json`) and the annotated image. Reading results never calls AWS. Its code is a functional core with an imperative shell:
+  - `brutus/vision/` holds immutable models and pure functions for geometry, parsing Rekognition responses, combining people and faces, removing duplicate objects and drawing;
+  - `pipeline.py`, `store.py` and `api.py` are the only places that talk to AWS, the filesystem or HTTP.
+- **Frontend:** a server-rendered page. htmx refreshes the results panel every 3 seconds. The browser only talks to the frontend, which also serves the annotated image from the backend.
 
 ### API event flow
-Sequence diagram illustrating the flow of what happens when Brutus is commanded to take a picture, analyze it and present results in UI. Similar but more simplistic flow occurs when Brutus is told to speak up (Raspberry Pi client sends text to /speech API endpoint, which forwards it to AWS Polly API, which returns an audio stream that is played back via speaker).
-
 ```mermaid
 sequenceDiagram
     actor User
-    participant RP as Brutus Pi Client
+    participant RP as Pi client
     participant BE as Backend API
-    participant IR as Image Recognition
     participant AWS as AWS Rekognition
     participant FE as Frontend
     participant Browser
 
-    User->>RP: Select "Take picture"
-    RP->>RP: capture_rotate_and_save()
-    Note over RP: rpicam-still captures<br/>PIL rotates image
+    User->>RP: 1 "Take picture and analyze"
+    RP->>RP: rpicam-still + rotate
+    RP->>BE: POST /images?detail=standard (JPEG)
+    BE->>BE: EXIF-correct, downscale
+    BE->>AWS: DetectLabels
+    BE->>AWS: DetectFaces
+    BE->>AWS: CompareFaces × reference photos (only if faces)
+    BE->>BE: combine people + faces + names, dedupe objects, draw boxes
+    BE->>BE: store analysis.json + annotated.jpg
+    BE-->>RP: 201 Analysis
+    RP-->>User: "I see 2 people: Kirk and 1 unknown person ..."
 
-    RP->>BE: POST /image/upload
-    BE->>BE: Save to input/
-    BE-->>RP: Upload success
-
-    loop Every 5 seconds
-        FE->>BE: POST /image/save
-        BE->>IR: Process image
-        IR->>AWS: detect_faces()
-        AWS-->>IR: Face details
-        IR->>AWS: detect_labels()
-        AWS-->>IR: Labels
-        IR->>AWS: compare_faces()
-        AWS-->>IR: Face matches
-        IR->>IR: Draw bounding boxes
-        IR-->>BE: Return analyzed image
-        BE->>BE: Save to output/
-        BE-->>FE: Success
-
-        par Analysis Requests
-            FE->>BE: GET /image/analyze
-            BE->>IR: get_labels()
-            IR-->>BE: Labels
-            BE-->>FE: Label data
-        and
-            FE->>BE: GET /image/analyze/faces
-            BE->>IR: get_face_details()
-            IR-->>BE: Face data
-            BE-->>FE: Face analysis
-        and
-            FE->>BE: GET /image/analyze/facial-recognition
-            BE->>IR: get_face_matches()
-            IR-->>BE: Matches
-            BE-->>FE: Recognition data
-        end
-
-        FE->>BE: GET /image/latest
-        BE-->>FE: Send analyzed image
-        FE->>Browser: Update UI
+    loop every 3 s
+        Browser->>FE: GET /panel (htmx)
+        FE->>BE: GET /analyses/latest
+        BE-->>FE: Analysis JSON (no AWS calls)
+        FE-->>Browser: results HTML
+        Browser->>FE: GET /image/{id} (cached per picture)
+        FE->>BE: GET /images/latest/annotated
     end
 ```
+
+### Backend API
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/health` | Health check |
+| POST | `/images?detail=basic\|standard\|detailed` | Upload a JPEG; analyze it and store the result |
+| POST | `/analyses?detail=…` | Re-analyze the latest picture |
+| GET | `/analyses/latest` | Latest analysis (sends an `ETag`; `If-None-Match` returns 304) |
+| GET | `/images/latest/annotated` | Latest annotated JPEG |
+| POST | `/speech?text=…` | MP3 speech from Polly |
+
+The OpenAPI docs are at `http://<host>:8000/docs`.
 
 ## Project Structure
 ```
 brutus/
 ├── backend/
-│   ├── api.py              # Main FastAPI application
-│   ├── image_recognition.py # AWS Rekognition wrapper
-│   └── speech_generator.py  # AWS Polly wrapper
+│   ├── src/brutus/
+│   │   ├── vision/        # models, geometry, parse, objects, people, imaging, annotate, pipeline
+│   │   ├── api.py         # FastAPI app factory
+│   │   ├── store.py       # latest picture, analysis and reference faces on disk
+│   │   ├── speech.py      # Polly
+│   │   ├── settings.py    # configuration (.env)
+│   │   └── cli.py         # brutus-analyze: analyze an image file without a Pi
+│   └── tests/
 ├── frontend/
-│   ├── main.py            # Main frontend application
-│   └── static/
-├── raspberrypi_client/    # Raspberry Pi terminal client
-│   └── brutus_pi.py
-└── scripts/               # Helper scripts
-    ├── start_fe_be.sh     # Start frontend and backend
-    └── start_client.sh    # Start Raspberry Pi client
+│   ├── src/brutus_frontend/  # app.py, view.py, templates/, static/
+│   └── tests/
+├── raspberrypi_client/
+│   ├── brutus_pi.py       # terminal client
+│   ├── audio/
+│   └── tests/
+└── scripts/               # start_fe_be.sh, start_client.sh, stop.sh
 ```
-Each component is defined with Poetry project template. See installation prerequisites - after they are met, each component can be set up with Poetry commands. Each component has its own .env file for environment variables.
-
-### Opinions on some choices
-#### Backend folder structure
-Backend is for now a mix of Python files - FastAPI main app named api.py, and backend modules made of Python classes and methods, which FastAPI endpoints call.
-
-There are [at least two common project templates for FastAPI projects](https://medium.com/@amirm.lavasani/how-to-structure-your-fastapi-projects-0219a6600a8f), neither of which this solution uses.
-
-Maybe if I separated backend modules into models, routes, services etc. in theory the FastAPI app itself could be fully agnostic of backend service. Maybe I could mock and test interfaces in more puristic manner - but I feel that in reality, if I were to change backend from e.g. Rekognition to some Google image recognition api or esp32cam image detection, I'd anyhow need to write the interfaces anew. Also this isn't a wrapper for database using SQLAlchemy.
-
-Thus I argue that for now, this file structure abides by KISS principle and is the most maintainable in its current form.
-
-#### Logging module is duplicated code
-logging_utils.py is copy-pasted into each folder. It could be a shared component. For now I wanted to avoid shared components, which caused the need to duplicate code.
-Justification for this is that I'm still pondering should frontend and backend be moved out of Raspberry Pi so they'd run either on another local computer, or maybe run them in the cloud.
-Until I decide on the final architectural solution, I see little harm in duplicating this one module.
-
-#### Frontend is a single file
-Frontend is a single file, main.py. This is because I wanted to keep the frontend as simple as possible. I could have split it into components, but I wanted to avoid overengineering.
+Each service is its own uv project, with its own `pyproject.toml`, `uv.lock` and `.env`.
 
 ## Installation
 
 ### Hardware prerequisites
-- Raspberry Pi (confirmed working on model 3B)
-- Raspberry Pi Camera (at least v2)
+- Raspberry Pi (confirmed working on a model 3B) running **64-bit Raspberry Pi OS**. Python 3.15 packages for Pillow and pygame-ce are published for arm64 only. Check with `uname -m`, which should print `aarch64`.
+- Raspberry Pi Camera (v2 or newer)
 - Speaker
 - Mannequin (mandatory, code won't work without this.)
 
 ### Software prerequisites
-* Python 3.10 or higher
-* AWS CLI configured with AWS SSO
-* IAM role with proper RBAC ([see example IAM role definition](./brutus-iam-role.yaml))
-* [Poetry](https://python-poetry.org/docs/#installation) for dependency management
-
-```bash
-sudo apt-get install awscli rpicam-still
-```
-- Optional: precommit framework.
+- [uv](https://docs.astral.sh/uv/getting-started/installation/). It installs Python 3.15 for you.
+- AWS CLI configured with AWS SSO
+- An IAM role with the right permissions ([see the example IAM role definition](./brutus-iam-role.yaml))
+- On the Pi: `sudo apt-get install awscli rpicam-apps`, then enable the camera with `sudo raspi-config`
 
 ### Setup
-1. Clone the repository:
+1. Clone the repository and install uv and Python:
+   ```bash
+   git clone https://github.com/avecci/brutus.git && cd brutus
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   uv python install 3.15
+   ```
+2. Configure AWS:
+   ```bash
+   aws configure sso
+   ```
+3. Copy `.env.template` to `.env` in `backend/`, `frontend/` and `raspberrypi_client/`, and fill it in:
+   - `backend/.env`: `AWS_PROFILE`, `AWS_REGION`
+   - `frontend/.env`: `BACKEND_URL` (`http://localhost:8000` when everything runs on the Pi)
+   - `raspberrypi_client/.env`: `BACKEND_URL`, plus optional `CAMERA_ROTATION` and `DETAIL`
+4. Add reference photos of the people Brutus should know to `backend/reference_library/`, named `<Name>.jpg`.
+5. Install the dependencies in each service:
+   ```bash
+   (cd backend && uv sync) && (cd frontend && uv sync) && (cd raspberrypi_client && uv sync)
+   ```
+
+### Running
+Start the backend and frontend together, then the client:
 ```bash
-git clone https://github.com/avecci/brutus.git
+scripts/start_fe_be.sh     # backend :8000, then frontend :3000 once healthy
+scripts/start_client.sh    # terminal menu (needs the camera and speaker)
+scripts/stop.sh
 ```
+Then open `http://<pi-ip>:3000` in a browser on the same network.
 
-2. Set up environment variables:
+### Local development
+Run each service in its own terminal:
 ```bash
-aws configure sso
+cd backend && uv run task dev              # needs AWS access
+cd frontend && uv run task dev
+cd raspberrypi_client && uv run task start # needs the Pi camera and speaker
 ```
-
-**Backend (.env)**
-```ini
-AWS_PROFILE=your-profile
-AWS_REGION=eu-central-1
-```
-
-**Frontend (.env)**
-```ini
-BACKEND_URL=http://192.168.999:8000
-```
-
-**Raspberry Pi Client (.env)**
-```ini
-BACKEND_URL=http://192.168.999:8000
-```
-
-- Put your Raspberry PI IP address in frontend and raspberrypi_client .env files in backend url record.
-
-3. Run these in backend, frontend and raspberrypi_client folders, respectively:
+You can analyze an image file without a Pi:
 ```bash
-poetry lock
-poetry install
+cd backend && uv run brutus-analyze path/to/photo.jpg --detail detailed --out annotated.jpg
 ```
-### Local Development
-You can run each service individually, or all at once using helper scripts. Start each service in its own terminal with the following commands:
-1. Start backend for development (requires AWS access):
-```bash
-cd backend
-poetry run task dev
-```
-
-2. Start frontend for development (depends on backend running):
-```bash
-cd frontend
-poetry run task dev
-```
-
-3. Start Raspberry Pi client (depends on backend running):
-```bash
-cd raspberrypi_client
-poetry run task dev
-```
-Note: Raspberry Pi client depends on Raspberry Pi camera and speaker being connected to the Raspberry Pi, so you may not be able to run it successfully on your local machine.
-
-## Usage
-TB: Screenshots of terminal and frontend.
 
 ## Troubleshooting
-Common issues and their solutions:
-
 1. **Camera not working**
-   - Check camera is enabled: `sudo raspi-config`
-   - Verify permissions: `ls -l /dev/video0`
-
-2. **AWS Authentication**
-   - Verify AWS SSO login: `aws sso login`
-   - Check role permissions
-
-3. **Audio Issues**
-   - Test audio: `speaker-test -t wav`
-   - Check volume: `alsamixer`
+   - Check that the camera is enabled: `sudo raspi-config`
+   - Take a test picture: `rpicam-still -o test.jpg`
+2. **AWS authentication**
+   - Log in again: `aws sso login`
+   - Check the role permissions
+3. **Audio issues**
+   - Test the audio: `speaker-test -t wav`
+   - Check the volume: `alsamixer`
+4. **`uv sync` builds packages from source on the Pi**
+   - You are on 32-bit Raspberry Pi OS. Reflash it with the 64-bit image.
 
 ## Monitoring
-Logs are formed in JSON format to logs folder in each component. Log file is generated daily and record contains details of datetimestamp, log level, origin event filename, class, method and row number that produced the log event.
+- The backend writes JSON logs to `backend/logs/brutus.log`, rotated daily and kept for 14 days. Each entry includes the analysis id and the counts.
+- The Pi client logs to `raspberrypi_client/logs/brutus_pi.log`.
 
 ## Tests
-Each service contains at least some unit tests. You can run them with Poetry:
+Run these in each service:
 ```bash
-poetry run task test
+uv run task test     # unit tests; AWS is stubbed with botocore Stubber
+uv run task lint     # ruff
+uv run task check    # mypy --strict
 ```
-Note that most depend on AWS access working.
-
-Code formatting, linting, other standard checks can be performed with precommit:
+The backend also has tests against real AWS Rekognition. They need `aws sso login` and cost a little per run:
+```bash
+cd backend && uv run task test-integration
+```
+To run every check before committing:
 ```bash
 pre-commit run --all-files
 ```
