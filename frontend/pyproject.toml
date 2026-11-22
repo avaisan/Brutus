@@ -1,52 +1,45 @@
-[tool.poetry]
-name = "frontend"
-version = "1.0.0"
+[project]
+name = "brutus-frontend"
+version = "2.0.0"
 description = "Frontend for B.R.U.T.U.S."
 license = "MIT"
-authors = ["Antti Väisänen <avaisan@proton.me>"]
-readme = "README.md"
-package-mode = false
+requires-python = ">=3.15"
+dependencies = [
+    "fastapi>=0.165.0",
+    "httpx>=0.28.1",
+    "pydantic-settings>=2.16.3",
+    "python-dotenv>=1.2.4",
+    "python-json-logger>=4.2.0",
+    "reactpy>=1.1.0,<2",
+    "uvicorn[standard]>=0.54.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-fastapi = ">=0.104.0,<1.0.0"
-uvicorn = {extras = ["standard"], version = ">=0.24.0,<1.0.0"}
-reactpy = ">=1.0.1"
-httpx = ">=0.25.1"
-pathlib = ">=1.0.1,<2.0.0"
-python-json-logger = ">=3.2.1,<4.0.0"
-python-dotenv = ">=1.0.0"
+[dependency-groups]
+dev = [
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+    "pytest-cov>=7.1.0",
+    "pytest-mock>=3.17.0",
+    "ruff>=0.17.6",
+    "taskipy>=1.14.1",
+]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.3.4"
-pytest-asyncio = ">=0.21.1,<1.0.0"
-pytest-mock = "^3.12.0"
-pytest-cov = "^4.1.0"
-black = ">=23.11.0,<24.0.0"
-mypy = ">=1.7.0,<2.0.0"
-flake8 = ">=6.1.0,<7.0.0"
-taskipy = ">=1.12.0,<2.0.0"
-httpx = "^0.25.1"
-
+[tool.uv]
+package = false
 
 [tool.taskipy.tasks]
 start = "uvicorn main:app --host 0.0.0.0 --port 3000"
 dev = "uvicorn main:app --host 127.0.0.1 --port 3000 --reload"
-test = "pytest tests/ -v"
-lint = "flake8 ."
-format = "black ."
+test = "pytest -v"
+lint = "ruff check . && ruff format --check ."
+format = "ruff format . && ruff check --fix ."
 check = "mypy ."
-
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.black]
-line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+
+[tool.mypy]
+python_version = "3.15"
+strict = true
+plugins = ["pydantic.mypy"]
