@@ -86,8 +86,16 @@ Run them from the repo root on the Pi. They need bash, `ss`, `curl` and `pkill`.
 
 ## Logs
 
-- Backend: JSON lines in `backend/logs/brutus.log` (rotated daily, 14 days kept), warnings also go to stderr. `configure_logging()` is called once, in `create_app`/`cli`. Never log secrets.
-- Pi client: `raspberrypi_client/logs/brutus_pi.log`.
+- Logging is **configuration, not code**. Each service has a `logging.json` (`dictConfig` format, using python-json-logger's `pythonjsonlogger.json.JsonFormatter`). Don't add logging setup functions or copy a logging module between services; modules only call `logging.getLogger(__name__)`.
+- Backend and frontend: uvicorn loads the file with `--log-config logging.json` (in the `start`/`dev` tasks). Tests and the `brutus-analyze` CLI configure no logging.
+- Pi client: `main()` changes into the client folder and calls `logging.config.dictConfig` on `logging.json`.
+- Files, rotated daily and kept for 14 days:
+  - backend: `backend/logs/brutus.log` (the console gets INFO as plain text);
+  - frontend: `frontend/logs/frontend.log` (the console gets WARNING);
+  - Pi client: `raspberrypi_client/logs/brutus_pi.log` (file only).
+- File paths are relative to the service folder. `logs/.gitkeep` keeps each logs folder in git, because the file handler won't create it.
+- Each service has `tests/test_logging_config.py`, which checks that its config writes JSON lines.
+- Never log secrets. Expected, repeating failures (such as the backend being down while htmx polls) log one line without a traceback.
 
 ## Planned (README "Upcoming")
 

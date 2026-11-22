@@ -8,6 +8,7 @@ dependencies = [
     "pillow>=13.0.0",
     "pygame-ce>=2.5.8",
     "python-dotenv>=1.2.4",
+    "python-json-logger>=4.2.0",
     "requests>=2.34.2",
 ]
 

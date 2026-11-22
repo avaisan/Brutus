@@ -61,8 +61,9 @@ def create_app(
         """The latest analysis, or a waiting or error message."""
         try:
             response = await backend(request).get("/analyses/latest")
-        except httpx2.HTTPError:
-            logger.warning("Backend is not reachable", exc_info=True)
+        except httpx2.HTTPError as error:
+            # No traceback: htmx polls every few seconds while the backend is down.
+            logger.warning("Backend is not reachable: %r", error)
             return templates.TemplateResponse(request, "panel.html", {"state": "down"})
         if response.status_code == 404:
             return templates.TemplateResponse(
@@ -80,8 +81,8 @@ def create_app(
         """Annotated image; the id in the URL lets the browser cache each picture."""
         try:
             upstream = await backend(request).get("/images/latest/annotated")
-        except httpx2.HTTPError:
-            logger.warning("Backend is not reachable", exc_info=True)
+        except httpx2.HTTPError as error:
+            logger.warning("Backend is not reachable: %r", error)
             return Response(status_code=502)
         if upstream.is_error:
             return Response(status_code=upstream.status_code)

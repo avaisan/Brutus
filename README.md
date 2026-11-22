@@ -131,8 +131,12 @@ There are [at least two common project templates for FastAPI projects](https://m
 
 My earlier argument still holds: if I swapped Rekognition for another image recognition API or an esp32cam, I would rewrite `pipeline.py` and `parse.py` anyway. The rest of the core (people, objects, annotate) would stay as it is, because it only works on Brutus' own models.
 
-#### Each service has its own small logging setup
-The copy-pasted `logging_utils.py` is gone. The backend configures JSON logging once in `log.py`. The Pi client uses plain `logging.basicConfig`, and the frontend relies on uvicorn's logging. I still avoid a shared package between the services, for the same reason as before: I haven't decided whether the frontend and backend stay on the Pi, move to another local computer, or go to the cloud. Three independent uv projects can be deployed anywhere without dragging a shared library along.
+#### Logging is configuration, not code
+The copy-pasted `logging_utils.py` was a wrapper around [python-json-logger](https://github.com/nhairs/python-json-logger). It is gone, and so is any other logging setup code. Each service now has a small `logging.json` (a standard `logging.config.dictConfig` file) that uses python-json-logger's `JsonFormatter`:
+- uvicorn loads it with `--log-config logging.json`, so the backend's and frontend's own logs and uvicorn's request logs are all JSON;
+- the Pi client loads it with a single `dictConfig` call.
+
+The code itself only does `logging.getLogger(__name__)`. Changing a log level, file or format means editing JSON, not Python. I still avoid a shared package between the services, for the same reason as before: I haven't decided whether the frontend and backend stay on the Pi, move to another local computer, or go to the cloud. Three independent uv projects can be deployed anywhere without dragging a shared library along.
 
 #### Frontend is server-rendered, without a JavaScript framework
 ReactPy let me write the UI in Python. Its last stable release no longer works with current FastAPI, and version 2.0 is still in beta. The frontend is now one FastAPI app with two Jinja2 templates. htmx refreshes the results panel every few seconds, and the formatting lives in pure Python functions (`view.py`). It is still in Python and still small, and there is nothing to build or bundle. The page only reads stored results, so refreshing it never costs anything on AWS.
@@ -207,8 +211,16 @@ cd backend && uv run brutus-analyze path/to/photo.jpg --detail detailed --out an
    - You are on 32-bit Raspberry Pi OS. Reflash it with the 64-bit image.
 
 ## Monitoring
-- The backend writes JSON logs to `backend/logs/brutus.log`, rotated daily and kept for 14 days. Each entry includes the analysis id and the counts.
-- The Pi client logs to `raspberrypi_client/logs/brutus_pi.log`.
+Every service writes JSON lines, rotated daily and kept for 14 days:
+
+| Service | Log file | Also printed to the console |
+|---|---|---|
+| Backend | `backend/logs/brutus.log` | INFO and above, as readable text |
+| Frontend | `frontend/logs/frontend.log` | WARNING and above |
+| Pi client | `raspberrypi_client/logs/brutus_pi.log` | nothing (the console is the menu) |
+
+- The format is set in each service's `logging.json`. File paths in it are relative to the service folder, which is where the `uv run task` commands and the scripts start the services.
+- Each analysis is logged with its id, detail level and counts. uvicorn's request logs go into the same files.
 
 ## Tests
 Run these in each service:

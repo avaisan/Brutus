@@ -37,8 +37,8 @@ build-backend = "uv_build"
 module-name = "brutus"
 
 [tool.taskipy.tasks]
-start = "uvicorn brutus.api:create_app --factory --host 0.0.0.0 --port 8000"
-dev = "uvicorn brutus.api:create_app --factory --host 127.0.0.1 --port 8000 --reload"
+start = "uvicorn brutus.api:create_app --factory --log-config logging.json --host 0.0.0.0 --port 8000"
+dev = "uvicorn brutus.api:create_app --factory --log-config logging.json --host 127.0.0.1 --port 8000 --reload"
 test = 'pytest -m "not integration"'
 test-integration = "pytest -m integration"
 lint = "ruff check . && ruff format --check ."

@@ -9,6 +9,7 @@ dependencies = [
     "httpx2>=2.16.2",
     "jinja2>=3.1.6",
     "pydantic-settings>=2.16.3",
+    "python-json-logger>=4.2.0",
     "uvicorn[standard]>=0.54.0",
 ]
 
@@ -29,8 +30,8 @@ build-backend = "uv_build"
 module-name = "brutus_frontend"
 
 [tool.taskipy.tasks]
-start = "uvicorn brutus_frontend.app:create_app --factory --host 0.0.0.0 --port 3000"
-dev = "uvicorn brutus_frontend.app:create_app --factory --host 127.0.0.1 --port 3000 --reload"
+start = "uvicorn brutus_frontend.app:create_app --factory --log-config logging.json --host 0.0.0.0 --port 3000"
+dev = "uvicorn brutus_frontend.app:create_app --factory --log-config logging.json --host 127.0.0.1 --port 3000 --reload"
 test = "pytest"
 lint = "ruff check . && ruff format --check ."
 format = "ruff format . && ruff check --fix ."

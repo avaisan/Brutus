@@ -26,7 +26,6 @@ class Settings(BaseSettings):
     input_dir: Path = BACKEND_ROOT / "input"
     output_dir: Path = BACKEND_ROOT / "output"
     reference_dir: Path = BACKEND_ROOT / "reference_library"
-    log_dir: Path = BACKEND_ROOT / "logs"
 
     max_image_edge: int = 2048
     max_upload_bytes: int = 20 * 1024 * 1024

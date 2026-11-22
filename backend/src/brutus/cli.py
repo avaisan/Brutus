@@ -4,7 +4,6 @@ import argparse
 from collections.abc import Sequence
 from pathlib import Path
 
-from brutus.log import configure_logging
 from brutus.settings import Settings, aws_session
 from brutus.store import load_references
 from brutus.vision.annotate import annotate
@@ -27,7 +26,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     settings = Settings()
-    configure_logging(settings.log_dir)
     client = aws_session(settings).client("rekognition")
     image = normalize(args.image.read_bytes(), max_edge=settings.max_image_edge)
     references = load_references(

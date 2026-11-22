@@ -30,14 +30,17 @@ MANIFEST
 backend/input/
 backend/reference_library/
 backend/output/
-backend/logs/
+backend/logs/*
+!backend/logs/.gitkeep
 backend/tests/input/
 backend/tests/*.jpg
 
 raspberrypi_client/input
-raspberrypi_client/logs/
+raspberrypi_client/logs/*
+!raspberrypi_client/logs/.gitkeep
 
-frontend/logs/
+frontend/logs/*
+!frontend/logs/.gitkeep
 
 *.log
 *.wav

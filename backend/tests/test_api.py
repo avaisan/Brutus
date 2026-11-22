@@ -28,7 +28,6 @@ def settings(tmp_path: Path) -> Settings:
         input_dir=tmp_path / "input",
         output_dir=tmp_path / "output",
         reference_dir=tmp_path / "reference_library",
-        log_dir=tmp_path / "logs",
     )
 
 
@@ -109,7 +108,6 @@ class TestUploadImage:
         small_limit = Settings(
             input_dir=tmp_path / "input",
             output_dir=tmp_path / "output",
-            log_dir=tmp_path / "logs",
             max_upload_bytes=100,
         )
         app = create_app(small_limit, rekognition=rekognition, polly=polly)

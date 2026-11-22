@@ -1,7 +1,9 @@
 """Brutus terminal client for the Raspberry Pi: take pictures, play audio, speak."""
 
 import io
+import json
 import logging
+import logging.config
 import os
 import subprocess
 import time
@@ -224,12 +226,10 @@ def main() -> int:
     """Check the backend, greet, and run the menu."""
     load_dotenv(CLIENT_ROOT / ".env")
     settings = load_settings(os.environ)
-    (CLIENT_ROOT / "logs").mkdir(exist_ok=True)
-    logging.basicConfig(
-        filename=CLIENT_ROOT / "logs" / "brutus_pi.log",
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
+    # Paths in logging.json are relative to this folder, as for the uvicorn services.
+    os.chdir(CLIENT_ROOT)
+    Path("logs").mkdir(exist_ok=True)
+    logging.config.dictConfig(json.loads(Path("logging.json").read_text()))
 
     if not is_backend_healthy(settings):
         print(f"Backend is not available at {settings.backend_url}")

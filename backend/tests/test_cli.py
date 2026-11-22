@@ -24,7 +24,6 @@ def test_given_image_file_when_cli_runs_then_prints_json_and_saves_annotated(
     rekognition_stub: Stubber,
 ) -> None:
     monkeypatch.setenv("REFERENCE_DIR", str(tmp_path / "no_references"))
-    monkeypatch.setenv("LOG_DIR", str(tmp_path / "logs"))
     monkeypatch.setattr(
         cli, "aws_session", lambda _: SimpleNamespace(client=lambda _: rekognition)
     )

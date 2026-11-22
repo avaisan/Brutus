@@ -10,7 +10,6 @@ from fastapi.responses import FileResponse, JSONResponse
 from PIL import Image
 
 from brutus import store
-from brutus.log import configure_logging
 from brutus.settings import Settings, aws_session
 from brutus.speech import synthesize
 from brutus.vision.annotate import annotate
@@ -37,7 +36,6 @@ def create_app(
 ) -> FastAPI:
     """Build the app. AWS clients are created from settings unless injected."""
     settings = settings or Settings()
-    configure_logging(settings.log_dir)
     if rekognition is None or polly is None:
         session = aws_session(settings)
         rekognition = rekognition or session.client("rekognition")
