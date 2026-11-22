@@ -21,4 +21,4 @@ ignore = ["D105", "D107", "D203", "D213", "D401"]  # D401: noun-phrase docstring
 "**/tests/**" = ["D"]
 
 [lint.isort]
-known-first-party = ["brutus"]
+known-first-party = ["brutus", "brutus_frontend", "brutus_pi"]

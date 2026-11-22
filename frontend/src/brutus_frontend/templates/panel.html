@@ -1,0 +1,51 @@
+{% if state == "down" %}
+<div class="error">Backend is not reachable. Retrying…</div>
+{% elif state == "waiting" %}
+<div class="loading"><div class="spinner"></div><p>Waiting for the first picture…</p></div>
+{% else %}
+<section class="image-container">
+    <h2>{{ describe_counts(analysis) }}</h2>
+    <img class="analyzed-image" src="/image/{{ analysis.id }}" alt="Analyzed picture">
+    <p class="metric">Detail: {{ analysis.detail }}</p>
+</section>
+
+<section class="result-section">
+    <h3>People</h3>
+    {% if analysis.people %}
+    <div class="faces-list">
+        {% for person in analysis.people %}
+        {% set title, details = describe_person(person) %}
+        <div class="face-detail">
+            <h4>{{ title }}</h4>
+            {% for line in details %}<p>{{ line }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No people.</p>
+    {% endif %}
+</section>
+
+<section class="result-section">
+    <h3>Animals and objects</h3>
+    {% if analysis.animals or analysis.objects %}
+    <ul>
+        {% for animal in analysis.animals %}
+        <li>A{{ animal.number }} · {{ animal.name }} <span class="metric">{{ "%.1f"|format(animal.confidence) }}%</span></li>
+        {% endfor %}
+        {% for item in analysis.objects %}
+        <li>O{{ item.number }} · {{ item.name }} <span class="metric">{{ "%.1f"|format(item.confidence) }}%</span></li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No animals or objects.</p>
+    {% endif %}
+</section>
+
+{% if analysis.labels %}
+<section class="result-section">
+    <h3>Scene</h3>
+    <p>{{ analysis.labels | join(", ") }}</p>
+</section>
+{% endif %}
+{% endif %}
