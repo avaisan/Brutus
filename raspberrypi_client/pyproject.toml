@@ -8,7 +8,6 @@ dependencies = [
     "pillow>=13.0.0",
     "pygame-ce>=2.5.8",
     "python-dotenv>=1.2.4",
-    "python-json-logger>=4.2.0",
     "requests>=2.34.2",
 ]
 
@@ -21,7 +20,7 @@ dev = [
     "requests-mock>=1.12.1",
     "ruff>=0.17.6",
     "taskipy>=1.14.1",
-    "types-requests>=2.32",
+    "types-requests>=2.33.0",
 ]
 
 [tool.uv]
@@ -29,15 +28,19 @@ package = false
 
 [tool.taskipy.tasks]
 start = "python brutus_pi.py"
-dev = "python brutus_pi.py"
-test = "pytest -v"
+test = "pytest"
 lint = "ruff check . && ruff format --check ."
 format = "ruff format . && ruff check --fix ."
-check = "mypy ."
+check = "mypy brutus_pi.py tests"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.mypy]
 python_version = "3.15"
 strict = true
+
+[[tool.mypy.overrides]]
+module = ["requests_mock.*"]
+ignore_missing_imports = true
