@@ -1,0 +1,291 @@
+{
+ "Labels": [
+  {
+   "Name": "Car",
+   "Confidence": 99.81979370117188,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.7591047286987305,
+      "Height": 0.5326696634292603,
+      "Left": 0.02091677114367485,
+      "Top": 0.345893532037735
+     },
+     "Confidence": 99.64085388183594
+    }
+   ],
+   "Parents": [
+    {
+     "Name": "Transportation"
+    },
+    {
+     "Name": "Vehicle"
+    }
+   ],
+   "Aliases": [
+    {
+     "Name": "Automobile"
+    }
+   ],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Coupe",
+   "Confidence": 99.81979370117188,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Car"
+    },
+    {
+     "Name": "Sports Car"
+    },
+    {
+     "Name": "Transportation"
+    },
+    {
+     "Name": "Vehicle"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Sports Car",
+   "Confidence": 99.81979370117188,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Car"
+    },
+    {
+     "Name": "Transportation"
+    },
+    {
+     "Name": "Vehicle"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Transportation",
+   "Confidence": 99.81979370117188,
+   "Instances": [],
+   "Parents": [],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Vehicle",
+   "Confidence": 99.81979370117188,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Transportation"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Person",
+   "Confidence": 98.63536071777344,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.1910586655139923,
+      "Height": 0.34180355072021484,
+      "Left": 0.3295183479785919,
+      "Top": 0.14934203028678894
+     },
+     "Confidence": 98.63536071777344
+    }
+   ],
+   "Parents": [],
+   "Aliases": [
+    {
+     "Name": "Human"
+    }
+   ],
+   "Categories": [
+    {
+     "Name": "Person Description"
+    }
+   ]
+  },
+  {
+   "Name": "Alloy Wheel",
+   "Confidence": 98.33887481689453,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Car"
+    },
+    {
+     "Name": "Car Wheel"
+    },
+    {
+     "Name": "Machine"
+    },
+    {
+     "Name": "Spoke"
+    },
+    {
+     "Name": "Tire"
+    },
+    {
+     "Name": "Transportation"
+    },
+    {
+     "Name": "Vehicle"
+    },
+    {
+     "Name": "Wheel"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Car Wheel",
+   "Confidence": 98.33887481689453,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Car"
+    },
+    {
+     "Name": "Machine"
+    },
+    {
+     "Name": "Tire"
+    },
+    {
+     "Name": "Transportation"
+    },
+    {
+     "Name": "Vehicle"
+    },
+    {
+     "Name": "Wheel"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Machine",
+   "Confidence": 98.33887481689453,
+   "Instances": [],
+   "Parents": [],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Tools and Machinery"
+    }
+   ]
+  },
+  {
+   "Name": "Spoke",
+   "Confidence": 98.33887481689453,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Machine"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Tire",
+   "Confidence": 98.33887481689453,
+   "Instances": [],
+   "Parents": [],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Wheel",
+   "Confidence": 98.33887481689453,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.0755053386092186,
+      "Height": 0.19476550817489624,
+      "Left": 0.030556024983525276,
+      "Top": 0.5469158887863159
+     },
+     "Confidence": 97.58910369873047
+    },
+    {
+     "BoundingBox": {
+      "Width": 0.10163933038711548,
+      "Height": 0.05510846897959709,
+      "Left": 0.6058236360549927,
+      "Top": 0.8069528937339783
+     },
+     "Confidence": 95.27247619628906
+    },
+    {
+     "BoundingBox": {
+      "Width": 0.10029187798500061,
+      "Height": 0.22797958552837372,
+      "Left": 0.17900168895721436,
+      "Top": 0.6473753452301025
+     },
+     "Confidence": 94.68995666503906
+    }
+   ],
+   "Parents": [
+    {
+     "Name": "Machine"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  }
+ ],
+ "LabelModelVersion": "3.0"
+}

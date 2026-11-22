@@ -1,0 +1,215 @@
+{
+ "Labels": [
+  {
+   "Name": "Clothing",
+   "Confidence": 99.51325988769531,
+   "Instances": [],
+   "Parents": [],
+   "Aliases": [
+    {
+     "Name": "Apparel"
+    }
+   ],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Pants",
+   "Confidence": 99.51325988769531,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Clothing"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Adult",
+   "Confidence": 99.1521224975586,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.9088401794433594,
+      "Height": 0.9657666683197021,
+      "Left": 0.06227695569396019,
+      "Top": 0.02975061722099781
+     },
+     "Confidence": 99.1521224975586
+    }
+   ],
+   "Parents": [
+    {
+     "Name": "Person"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Person Description"
+    }
+   ]
+  },
+  {
+   "Name": "Male",
+   "Confidence": 99.1521224975586,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.9088401794433594,
+      "Height": 0.9657666683197021,
+      "Left": 0.06227695569396019,
+      "Top": 0.02975061722099781
+     },
+     "Confidence": 99.1521224975586
+    }
+   ],
+   "Parents": [
+    {
+     "Name": "Person"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Person Description"
+    }
+   ]
+  },
+  {
+   "Name": "Man",
+   "Confidence": 99.1521224975586,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.9088401794433594,
+      "Height": 0.9657666683197021,
+      "Left": 0.06227695569396019,
+      "Top": 0.02975061722099781
+     },
+     "Confidence": 99.1521224975586
+    }
+   ],
+   "Parents": [
+    {
+     "Name": "Adult"
+    },
+    {
+     "Name": "Male"
+    },
+    {
+     "Name": "Person"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Person Description"
+    }
+   ]
+  },
+  {
+   "Name": "Person",
+   "Confidence": 99.1521224975586,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.9088401794433594,
+      "Height": 0.9657666683197021,
+      "Left": 0.06227695569396019,
+      "Top": 0.02975061722099781
+     },
+     "Confidence": 99.1521224975586
+    }
+   ],
+   "Parents": [],
+   "Aliases": [
+    {
+     "Name": "Human"
+    }
+   ],
+   "Categories": [
+    {
+     "Name": "Person Description"
+    }
+   ]
+  },
+  {
+   "Name": "Coat",
+   "Confidence": 98.93136596679688,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Clothing"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Jacket",
+   "Confidence": 98.93136596679688,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Clothing"
+    },
+    {
+     "Name": "Coat"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Jeans",
+   "Confidence": 92.93365478515625,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.7576330900192261,
+      "Height": 0.3111937642097473,
+      "Left": 0.11649856716394424,
+      "Top": 0.6881932616233826
+     },
+     "Confidence": 92.93365478515625
+    }
+   ],
+   "Parents": [
+    {
+     "Name": "Clothing"
+    },
+    {
+     "Name": "Pants"
+    }
+   ],
+   "Aliases": [
+    {
+     "Name": "Denim"
+    }
+   ],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  }
+ ],
+ "LabelModelVersion": "3.0"
+}

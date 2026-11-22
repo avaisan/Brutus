@@ -1,0 +1,109 @@
+{
+ "Labels": [
+  {
+   "Name": "Aircraft",
+   "Confidence": 99.99823760986328,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Transportation"
+    },
+    {
+     "Name": "Vehicle"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Airplane",
+   "Confidence": 99.99823760986328,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.8756661415100098,
+      "Height": 0.3880859911441803,
+      "Left": 0.07461439818143845,
+      "Top": 0.3184138238430023
+     },
+     "Confidence": 93.02460479736328
+    }
+   ],
+   "Parents": [
+    {
+     "Name": "Aircraft"
+    },
+    {
+     "Name": "Transportation"
+    },
+    {
+     "Name": "Vehicle"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Jet",
+   "Confidence": 99.99823760986328,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Aircraft"
+    },
+    {
+     "Name": "Airplane"
+    },
+    {
+     "Name": "Transportation"
+    },
+    {
+     "Name": "Vehicle"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Transportation",
+   "Confidence": 99.99823760986328,
+   "Instances": [],
+   "Parents": [],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  },
+  {
+   "Name": "Vehicle",
+   "Confidence": 99.99823760986328,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Transportation"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Vehicles and Automotive"
+    }
+   ]
+  }
+ ],
+ "LabelModelVersion": "3.0"
+}

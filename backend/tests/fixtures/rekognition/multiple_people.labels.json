@@ -1,0 +1,150 @@
+{
+ "Labels": [
+  {
+   "Name": "Clothing",
+   "Confidence": 99.99917602539062,
+   "Instances": [],
+   "Parents": [],
+   "Aliases": [
+    {
+     "Name": "Apparel"
+    }
+   ],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Hat",
+   "Confidence": 99.99917602539062,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Clothing"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Costume",
+   "Confidence": 99.80390930175781,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Clothing"
+    },
+    {
+     "Name": "Person"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Person",
+   "Confidence": 99.80390930175781,
+   "Instances": [
+    {
+     "BoundingBox": {
+      "Width": 0.36312830448150635,
+      "Height": 0.968324601650238,
+      "Left": 0.06370336562395096,
+      "Top": 0.02690131962299347
+     },
+     "Confidence": 98.18650817871094
+    },
+    {
+     "BoundingBox": {
+      "Width": 0.37618204951286316,
+      "Height": 0.9318275451660156,
+      "Left": 0.5962490439414978,
+      "Top": 0.06343085318803787
+     },
+     "Confidence": 97.56157684326172
+    },
+    {
+     "BoundingBox": {
+      "Width": 0.7578941583633423,
+      "Height": 0.9643874168395996,
+      "Left": 0.14227181673049927,
+      "Top": 0.027844715863466263
+     },
+     "Confidence": 93.22245788574219
+    }
+   ],
+   "Parents": [],
+   "Aliases": [
+    {
+     "Name": "Human"
+    }
+   ],
+   "Categories": [
+    {
+     "Name": "Person Description"
+    }
+   ]
+  },
+  {
+   "Name": "Formal Wear",
+   "Confidence": 99.34307861328125,
+   "Instances": [],
+   "Parents": [],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Suit",
+   "Confidence": 99.34307861328125,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Clothing"
+    },
+    {
+     "Name": "Formal Wear"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  },
+  {
+   "Name": "Sombrero",
+   "Confidence": 93.23284912109375,
+   "Instances": [],
+   "Parents": [
+    {
+     "Name": "Clothing"
+    },
+    {
+     "Name": "Hat"
+    }
+   ],
+   "Aliases": [],
+   "Categories": [
+    {
+     "Name": "Apparel and Accessories"
+    }
+   ]
+  }
+ ],
+ "LabelModelVersion": "3.0"
+}
