@@ -15,7 +15,7 @@ select = [
     "PTH",           # use pathlib
     "RUF",           # ruff-specific
 ]
-ignore = ["D105", "D107", "D203", "D213"]
+ignore = ["D105", "D107", "D203", "D213", "D401"]  # D401: noun-phrase docstrings read better for pure functions
 
 [lint.per-file-ignores]
 "**/tests/**" = ["D"]
