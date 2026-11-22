@@ -78,7 +78,11 @@ def create_app(
     @app.get("/image/{analysis_id}")
     async def image(analysis_id: str, request: Request) -> Response:
         """Annotated image; the id in the URL lets the browser cache each picture."""
-        upstream = await backend(request).get("/images/latest/annotated")
+        try:
+            upstream = await backend(request).get("/images/latest/annotated")
+        except httpx2.HTTPError:
+            logger.warning("Backend is not reachable", exc_info=True)
+            return Response(status_code=502)
         if upstream.is_error:
             return Response(status_code=upstream.status_code)
         return Response(

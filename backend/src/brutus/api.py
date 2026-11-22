@@ -1,12 +1,13 @@
 """HTTP API: analyze each picture once, then serve the stored result."""
 
 import logging
+import threading
 from typing import TYPE_CHECKING, Annotated
 
 from botocore.exceptions import BotoCoreError, ClientError
 from fastapi import FastAPI, File, HTTPException, Query, Request, Response, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 
 from brutus import store
 from brutus.log import configure_logging
@@ -43,17 +44,22 @@ def create_app(
         polly = polly or session.client("polly")
 
     app = FastAPI(title="Brutus API", version="2.0.0")
+    # One analysis at a time: the stored image and JSON always belong together,
+    # and a single camera never needs parallel analyses.
+    analysis_lock = threading.Lock()
 
-    def run_analysis(image: Image.Image, detail: DetailLevel) -> Analysis:
-        jpeg = encode_jpeg(image)
-        references = store.load_references(
-            settings.reference_dir, max_edge=settings.max_image_edge
-        )
-        analysis = analyze(jpeg, rekognition, references, detail, settings.thresholds)
-        store.save_result(
-            settings.output_dir, analysis, encode_jpeg(annotate(image, analysis))
-        )
-        return analysis
+    def run_analysis(image: Image.Image, jpeg: bytes, detail: DetailLevel) -> Analysis:
+        with analysis_lock:
+            references = store.load_references(
+                settings.reference_dir, max_edge=settings.max_image_edge
+            )
+            analysis = analyze(
+                jpeg, rekognition, references, detail, settings.thresholds
+            )
+            store.save_result(
+                settings.output_dir, analysis, encode_jpeg(annotate(image, analysis))
+            )
+            return analysis
 
     @app.exception_handler(BotoCoreError)
     @app.exception_handler(ClientError)
@@ -78,10 +84,12 @@ def create_app(
             raise HTTPException(413, "Image is too large")
         try:
             image = normalize(data, max_edge=settings.max_image_edge)
-        except UnidentifiedImageError as error:
+        except (OSError, Image.DecompressionBombError) as error:
+            # OSError covers unreadable (UnidentifiedImageError) and truncated files.
             raise HTTPException(422, "File is not a readable image") from error
-        store.save_input(settings.input_dir, encode_jpeg(image))
-        return run_analysis(image, detail)
+        jpeg = encode_jpeg(image)
+        store.save_input(settings.input_dir, jpeg)
+        return run_analysis(image, jpeg, detail)
 
     @app.post("/analyses", status_code=201)
     def reanalyze(detail: Detail = DetailLevel.STANDARD) -> Analysis:
@@ -89,7 +97,8 @@ def create_app(
         jpeg = store.load_input(settings.input_dir)
         if jpeg is None:
             raise HTTPException(404, "No picture has been uploaded yet")
-        return run_analysis(normalize(jpeg, max_edge=settings.max_image_edge), detail)
+        image = normalize(jpeg, max_edge=settings.max_image_edge)
+        return run_analysis(image, jpeg, detail)
 
     @app.get("/analyses/latest", response_model=Analysis)
     def latest_analysis(request: Request) -> Response:

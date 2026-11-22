@@ -88,6 +88,24 @@ class TestAnalyze:
             p.face is not None and p.face.attributes is None for p in result.people
         )
 
+    def test_given_reference_without_face_when_analyzed_then_skipped(
+        self, rekognition: RekognitionClient, rekognition_stub: Stubber
+    ) -> None:
+        expect_labels(rekognition_stub, labels_response(person(RIGHT)))
+        expect_faces(
+            rekognition_stub, faces_response(default_face(RIGHT_FACE)), "DEFAULT"
+        )
+        rekognition_stub.add_client_error(
+            "compare_faces", service_error_code="InvalidParameterException"
+        )
+        expect_compare(rekognition_stub, b"spock", compare_response((RIGHT_FACE, 95.0)))
+
+        result = run(rekognition, DetailLevel.STANDARD)
+
+        (only,) = result.people
+        assert only.identity is not None
+        assert only.identity.name == "Spock"
+
     def test_given_basic_detail_when_analyzed_then_no_face_comparison(
         self, rekognition: RekognitionClient, rekognition_stub: Stubber
     ) -> None:

@@ -89,6 +89,38 @@ class TestUploadImage:
 
         assert response.status_code == 415
 
+    def test_given_truncated_jpeg_when_uploaded_then_unprocessable(
+        self, client: TestClient
+    ) -> None:
+        truncated = IMAGE[: len(IMAGE) // 2]
+
+        response = client.post(
+            "/images", files={"file": ("p.jpg", truncated, "image/jpeg")}
+        )
+
+        assert response.status_code == 422
+
+    def test_given_image_over_size_limit_when_uploaded_then_too_large(
+        self,
+        tmp_path: Path,
+        rekognition: RekognitionClient,
+        polly: PollyClient,
+    ) -> None:
+        small_limit = Settings(
+            input_dir=tmp_path / "input",
+            output_dir=tmp_path / "output",
+            log_dir=tmp_path / "logs",
+            max_upload_bytes=100,
+        )
+        app = create_app(small_limit, rekognition=rekognition, polly=polly)
+
+        with TestClient(app) as small_client:
+            response = small_client.post(
+                "/images", files={"file": ("p.jpg", IMAGE, "image/jpeg")}
+            )
+
+        assert response.status_code == 413
+
     def test_given_rekognition_error_when_uploaded_then_bad_gateway(
         self, client: TestClient, rekognition_stub: Stubber
     ) -> None:

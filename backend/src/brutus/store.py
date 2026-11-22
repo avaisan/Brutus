@@ -1,5 +1,7 @@
 """Filesystem storage for the latest picture, its analysis and reference faces."""
 
+import tempfile
+from functools import lru_cache
 from pathlib import Path
 
 from brutus.vision.imaging import encode_jpeg, normalize
@@ -13,11 +15,13 @@ REFERENCE_SUFFIXES = frozenset({".jpg", ".jpeg", ".png"})
 
 
 def write_atomic(path: Path, data: bytes) -> None:
-    """Write so readers never see a half-written file."""
+    """Write so readers never see a half-written file, even with concurrent writers."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.tmp")
-    temporary.write_bytes(data)
-    temporary.replace(path)
+    with tempfile.NamedTemporaryFile(
+        dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False
+    ) as temporary:
+        temporary.write(data)
+    Path(temporary.name).replace(path)
 
 
 def save_input(input_dir: Path, jpeg: bytes) -> None:
@@ -48,6 +52,15 @@ def annotated_path(output_dir: Path) -> Path:
     return output_dir / ANNOTATED_FILE
 
 
+@lru_cache(maxsize=256)
+def _reference(path: Path, mtime_ns: int, size: int, max_edge: int) -> Reference:
+    """Decode and re-encode one reference photo; cached until the file changes."""
+    return Reference(
+        name=path.stem,
+        jpeg=encode_jpeg(normalize(path.read_bytes(), max_edge=max_edge)),
+    )
+
+
 def load_references(
     reference_dir: Path, *, max_edge: int = 2048
 ) -> tuple[Reference, ...]:
@@ -55,10 +68,7 @@ def load_references(
     if not reference_dir.is_dir():
         return ()
     return tuple(
-        Reference(
-            name=path.stem,
-            jpeg=encode_jpeg(normalize(path.read_bytes(), max_edge=max_edge)),
-        )
+        _reference(path, stat.st_mtime_ns, stat.st_size, max_edge)
         for path in sorted(reference_dir.iterdir())
-        if path.suffix.lower() in REFERENCE_SUFFIXES
+        if path.suffix.lower() in REFERENCE_SUFFIXES and (stat := path.stat())
     )

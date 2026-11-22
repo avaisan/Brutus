@@ -82,3 +82,12 @@ class TestImageProxy:
         assert response.status_code == 200
         assert response.headers["content-type"] == "image/jpeg"
         assert response.content == b"\xff\xd8jpeg"
+
+    def test_given_backend_down_when_image_requested_then_bad_gateway(
+        self,
+    ) -> None:
+        def down(request: httpx2.Request) -> httpx2.Response:
+            raise httpx2.ConnectError("refused", request=request)
+
+        for client in client_for(down):
+            assert client.get("/image/abc123").status_code == 502
