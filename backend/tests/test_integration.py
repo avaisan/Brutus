@@ -66,3 +66,4 @@ def test_given_reference_person_photo_when_analyzed_then_recognized(
 
     assert result.people_count == 1
     assert result.people[0].identity is not None
+    assert result.people[0].identity.name == "Michael Knight"
