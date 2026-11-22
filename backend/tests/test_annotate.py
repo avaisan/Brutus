@@ -2,12 +2,13 @@ from datetime import UTC, datetime
 
 from PIL import Image
 
-from brutus.vision.annotate import COLORS, annotate
+from brutus.vision.annotate import COLORS, annotate, marks
 from brutus.vision.models import (
     Analysis,
     BoundingBox,
     DetailLevel,
     Detection,
+    Face,
     Identity,
     Person,
 )
@@ -62,3 +63,54 @@ class TestAnnotate:
 
         assert basic.getpixel(chair_right_edge) == (255, 255, 255)
         assert standard.getpixel(chair_right_edge) == rgb("object")
+
+
+FACE = BoundingBox(left=0.15, top=0.22, width=0.08, height=0.12)
+
+
+def with_face_and_dog() -> Analysis:
+    return Analysis(
+        id="faces",
+        created_at=datetime(2026, 11, 22, tzinfo=UTC),
+        detail=DetailLevel.STANDARD,
+        people=(
+            Person(
+                number=1,
+                box=KNOWN,
+                face=Face(box=FACE, confidence=99.0),
+                identity=Identity(name="Kirk", similarity=99.0),
+            ),
+            Person(number=2, box=UNKNOWN),
+        ),
+        animals=(Detection(number=1, name="Dog", confidence=97.0, box=CHAIR),),
+        objects=(Detection(number=1, name="Airplane", confidence=95.0, box=CHAIR),),
+        labels=(),
+    )
+
+
+class TestMarks:
+    def test_given_person_with_face_when_marked_then_face_box_is_drawn(
+        self,
+    ) -> None:
+        boxes = {m.caption: m.box for m in marks(with_face_and_dog())}
+
+        assert boxes["1 Kirk"] == FACE
+
+    def test_given_person_facing_away_when_marked_then_person_box_is_drawn(
+        self,
+    ) -> None:
+        boxes = {m.caption: m.box for m in marks(with_face_and_dog())}
+
+        assert boxes["2"] == UNKNOWN
+
+    def test_given_people_animals_objects_when_marked_then_number_only_captions(
+        self,
+    ) -> None:
+        captions = [(m.caption, m.color) for m in marks(with_face_and_dog())]
+
+        assert captions == [
+            ("1", COLORS["object"]),
+            ("1", COLORS["animal"]),
+            ("1 Kirk", COLORS["recognized"]),
+            ("2", COLORS["person"]),
+        ]

@@ -29,8 +29,8 @@ def recorded(name: str, kind: str) -> dict[str, Any]:
         ("animal", 0, ["Dog"], {}),
         ("multiple_people", 3, [], {}),
         ("object", 0, [], {"Airplane": 1}),
-        ("one_person", 1, [], {"Jeans": 1}),
-        ("one_person_and_object", 1, [], {"Car": 1, "Wheel": 3}),
+        ("one_person", 1, [], {}),
+        ("one_person_and_object", 1, [], {"Car": 1}),
         ("person_and_dog", 1, ["Dog"], {}),
     ],
 )

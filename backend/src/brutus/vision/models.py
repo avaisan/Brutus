@@ -112,6 +112,8 @@ class Thresholds(Model):
     """IoU needed to tie a recognized face to a detected face."""
     dedupe_iou: float = 0.8
     """IoU above which a parent label's box duplicates its child's box."""
+    part_inside: float = 0.9
+    """Share of an object inside a bigger same-category object to count as its part."""
 
 
 class Analysis(Model):

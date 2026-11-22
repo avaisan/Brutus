@@ -81,7 +81,11 @@ def analyze(
     )
 
     instances = parse_label_instances(labels)
-    animals, objects = split_detections(instances, dedupe_iou=thresholds.dedupe_iou)
+    animals, objects = split_detections(
+        instances,
+        dedupe_iou=thresholds.dedupe_iou,
+        part_inside=thresholds.part_inside,
+    )
     people = combine_people(
         person_boxes(instances),
         faces,

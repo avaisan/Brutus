@@ -3,13 +3,14 @@
 from collections.abc import Iterable, Sequence
 from functools import reduce
 
-from brutus.vision.geometry import iou
+from brutus.vision.geometry import area, intersection_over_area, iou
 from brutus.vision.models import BoundingBox, Detection, LabelInstance
 
 PERSON = "Person"
 PERSON_CATEGORY = "Person Description"
 ANIMAL = "Animal"
 ANIMAL_CATEGORY = "Animals and Pets"
+APPAREL_CATEGORY = "Apparel and Accessories"
 
 
 def is_person_related(instance: LabelInstance) -> bool:
@@ -27,6 +28,30 @@ def is_animal(instance: LabelInstance) -> bool:
         ANIMAL_CATEGORY in instance.categories
         or ANIMAL in instance.parents
         or instance.name == ANIMAL
+    )
+
+
+def is_worn(instance: LabelInstance) -> bool:
+    """Clothing and accessories (Jeans, Hat, ...) describe a person, not an object."""
+    return APPAREL_CATEGORY in instance.categories
+
+
+def is_part_of(part: LabelInstance, whole: LabelInstance, min_inside: float) -> bool:
+    """True for a smaller box of the same category inside a bigger one (Wheel, Car)."""
+    return (
+        part is not whole
+        and bool(part.categories & whole.categories)
+        and area(part.box) < area(whole.box)
+        and intersection_over_area(part.box, whole.box) >= min_inside
+    )
+
+
+def drop_parts(
+    instances: Sequence[LabelInstance], *, min_inside: float
+) -> tuple[LabelInstance, ...]:
+    """Remove instances that are parts of another instance."""
+    return tuple(
+        i for i in instances if not any(is_part_of(i, w, min_inside) for w in instances)
     )
 
 
@@ -73,13 +98,21 @@ def number(instances: Sequence[LabelInstance]) -> tuple[Detection, ...]:
 
 
 def split_detections(
-    instances: Iterable[LabelInstance], *, dedupe_iou: float
+    instances: Iterable[LabelInstance],
+    *,
+    dedupe_iou: float,
+    part_inside: float = 0.9,
 ) -> tuple[tuple[Detection, ...], tuple[Detection, ...]]:
-    """Return (animals, objects), each deduplicated and numbered."""
+    """Return (animals, objects), each deduplicated and numbered.
+
+    People, what they wear, and parts of other objects are left out.
+    """
     unique = deduplicate(
-        (i for i in instances if not is_person_related(i)), iou_threshold=dedupe_iou
+        (i for i in instances if not (is_person_related(i) or is_worn(i))),
+        iou_threshold=dedupe_iou,
     )
-    return (
-        number([i for i in unique if is_animal(i)]),
-        number([i for i in unique if not is_animal(i)]),
+    animals = [i for i in unique if is_animal(i)]
+    objects = drop_parts(
+        [i for i in unique if not is_animal(i)], min_inside=part_inside
     )
+    return number(animals), number(objects)

@@ -29,8 +29,16 @@ The backend follows **functional core, imperative shell**. Keep it that way:
 ### Counting rules (the reason for the refactor)
 - People = instances of the `Person` label. Each face is assigned to a person one-to-one, by the share of the face inside the person box (≥ 0.5). A face with no person box becomes a person.
 - Identities: CompareFaces against each `reference_library/<Name>.jpg`, tied to detected faces by IoU ≥ 0.5. Each name goes to at most one face.
-- Animals and objects: person-related labels are excluded. Animals are recognized by the "Animals and Pets" category or an `Animal` parent. A parent label on the same box as its child (IoU ≥ 0.8) is dropped, so Dog/Pet/Animal becomes Dog.
-- People, animals and objects are each numbered from 1, left to right. Captions are `P1 Kirk`, `A1 Dog`, `O1 Chair`.
+- Animals and objects:
+  - person-related labels and worn items (category "Apparel and Accessories", such as Jeans or Hat) are excluded;
+  - animals are recognized by the "Animals and Pets" category or an `Animal` parent;
+  - a parent label on the same box as its child (IoU ≥ 0.8) is dropped, so Dog/Pet/Animal becomes Dog;
+  - an object at least 90% inside a bigger object of the same category is a part and is dropped (Wheels inside a Car).
+- People, animals and objects are each numbered from 1, left to right.
+- Drawing (the style the user accepted from the original version):
+  - a person is boxed by their **face** when there is one, otherwise by the person box (someone facing away);
+  - captions are small black tags with the **number** in the box color: red `1`, orange `1 Kirk` for a recognized person, blue for animals, green for objects;
+  - the frontend lists use the same `#1` numbers.
 - AWS calls per picture: 1 DetectLabels + 1 DetectFaces (`ALL` only at `detailed`) + N CompareFaces (none at `basic` or when there are no faces).
 - Gender is deliberately **not** reported.
 - Thresholds live in `Thresholds` and can be overridden with env vars, for example `THRESHOLDS__SIMILARITY=80`.

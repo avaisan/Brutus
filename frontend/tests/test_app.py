@@ -51,7 +51,9 @@ class TestPanel:
 
         assert response.status_code == 200
         assert "2 people · 1 dog · 2 chairs" in response.text
-        assert "P1 · Kirk (98.7%)" in response.text
+        assert "#1 · Kirk (98.7%)" in response.text
+        assert "#1 · Dog" in response.text
+        assert "#2 · Chair" in response.text
         assert 'src="/image/abc123"' in response.text
         assert "Indoors" in response.text
 

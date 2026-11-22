@@ -26,21 +26,20 @@
     {% endif %}
 </section>
 
+{% for title, items in [("Animals", analysis.animals), ("Objects", analysis.objects)] %}
 <section class="result-section">
-    <h3>Animals and objects</h3>
-    {% if analysis.animals or analysis.objects %}
+    <h3>{{ title }}</h3>
+    {% if items %}
     <ul>
-        {% for animal in analysis.animals %}
-        <li>A{{ animal.number }} · {{ animal.name }} <span class="metric">{{ "%.1f"|format(animal.confidence) }}%</span></li>
-        {% endfor %}
-        {% for item in analysis.objects %}
-        <li>O{{ item.number }} · {{ item.name }} <span class="metric">{{ "%.1f"|format(item.confidence) }}%</span></li>
+        {% for item in items %}
+        <li>#{{ item.number }} · {{ item.name }} <span class="metric">{{ "%.1f"|format(item.confidence) }}%</span></li>
         {% endfor %}
     </ul>
     {% else %}
-    <p>No animals or objects.</p>
+    <p>No {{ title | lower }}.</p>
     {% endif %}
 </section>
+{% endfor %}
 
 {% if analysis.labels %}
 <section class="result-section">

@@ -40,14 +40,14 @@ def describe_counts(analysis: Json) -> str:
 
 
 def describe_person(person: Json) -> tuple[str, tuple[str, ...]]:
-    """Title ('P1 · Kirk (98.7%)') and attribute lines for one person."""
+    """Title ('#1 · Kirk (98.7%)') and attribute lines for one person."""
     identity = person.get("identity")
     who = (
         f"{identity['name']} ({identity['similarity']:.1f}%)" if identity else "Unknown"
     )
     attributes = (person.get("face") or {}).get("attributes")
     if not attributes:
-        return f"P{person['number']} · {who}", ()
+        return f"#{person['number']} · {who}", ()
 
     emotion = attributes.get("emotion")
     details = (
@@ -60,4 +60,4 @@ def describe_person(person: Json) -> tuple[str, tuple[str, ...]]:
         *(label for key, label in ATTRIBUTE_FLAGS.items() if attributes.get(key)),
         *([] if attributes.get("eyes_open", True) else ["Eyes closed"]),
     )
-    return f"P{person['number']} · {who}", details
+    return f"#{person['number']} · {who}", details

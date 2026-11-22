@@ -33,7 +33,7 @@ class TestDescribePerson:
 
         title, details = describe_person(kirk)
 
-        assert title == "P1 · Kirk (98.7%)"
+        assert title == "#1 · Kirk (98.7%)"
         assert "Age 30-40" in details
         assert "Happy (91.5%)" in details
         assert "Smiling" in details
@@ -45,4 +45,4 @@ class TestDescribePerson:
     ) -> None:
         unknown = analysis()["people"][1]
 
-        assert describe_person(unknown) == ("P2 · Unknown", ())
+        assert describe_person(unknown) == ("#2 · Unknown", ())
