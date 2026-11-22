@@ -1,41 +1,21 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
     -   id: check-yaml
         args: ["--unsafe"] # Has to be used to allow Cloudformation references
     -   id: check-toml
     -   id: check-json
-    -   id: check-ast  # Validates Python syntax
-    -   id: debug-statements  # Checks for debugger imports
+    -   id: check-ast
+    -   id: debug-statements
     -   id: end-of-file-fixer
     -   id: trailing-whitespace
     -   id: mixed-line-ending
     -   id: check-merge-conflict
 
--   repo: https://github.com/psf/black
-    rev: 23.11.0
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.6
     hooks:
-    -   id: black
-        language_version: python3.10
-
--   repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-    -   id: isort
-        args: ["--profile", "black"]  # Makes isort compatible with black
-
--   repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.1.6
-    hooks:
-    -   id: ruff
+    -   id: ruff-check
         args: [--fix, --exit-non-zero-on-fix]
-
--   repo: https://github.com/PyCQA/flake8
-    rev: 6.1.0
-    hooks:
-    -   id: flake8
-        additional_dependencies:
-          - flake8-bugbear  # Finds likely bugs
-          - flake8-comprehensions  # Suggests better list/dict comprehensions
-          - flake8-docstrings  # Checks docstring formatting
+    -   id: ruff-format

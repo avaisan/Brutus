@@ -1,31 +1,16 @@
 #!/bin/bash
+# Start the Raspberry Pi terminal client in the foreground. Run from the repository root.
 
-# Directory for PID files
 PIDDIR="/tmp/brutus"
-mkdir -p $PIDDIR
 PI_CLIENT_PID="$PIDDIR/pi_client.pid"
+mkdir -p "$PIDDIR"
 
-# Function to stop the client
-stop_client() {
-    if [ -f "$PI_CLIENT_PID" ]; then
-        pid=$(cat "$PI_CLIENT_PID")
-        echo "Stopping Raspberry Pi client (PID: $pid)..."
-        kill "$pid" 2>/dev/null
-        rm "$PI_CLIENT_PID"
-    fi
-    exit 0
-}
-
-# Set up trap for cleanup
-trap stop_client SIGINT SIGTERM
-
-# Check if client is already running
 if [ -f "$PI_CLIENT_PID" ] && kill -0 "$(cat "$PI_CLIENT_PID")" 2>/dev/null; then
-    echo "Raspberry Pi client is already running. Please stop it first."
+    echo "Raspberry Pi client is already running. Run scripts/stop.sh first."
     exit 1
 fi
 
-# Start Raspberry Pi client
-echo "Starting Raspberry Pi client..."
 cd raspberrypi_client || exit 1
-poetry run task start
+echo $$ > "$PI_CLIENT_PID"
+trap 'rm -f "$PI_CLIENT_PID"' EXIT
+uv run task start

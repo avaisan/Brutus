@@ -1,85 +1,58 @@
-[tool.poetry]
-name = "backend"
-version = "1.0.0"
+[project]
+name = "brutus-backend"
+version = "2.0.0"
 description = "Backend for B.R.U.T.U.S."
 license = "MIT"
-authors = ["Antti Väisänen <avaisan@proton.me>"]
-readme = "README.md"
-package-mode = false
+requires-python = ">=3.15"
+dependencies = [
+    "boto3>=1.44.9",
+    "fastapi>=0.165.0",
+    "pillow>=13.0.0",
+    "pydantic>=2.14.4",
+    "pydantic-settings>=2.16.3",
+    "python-json-logger>=4.2.0",
+    "python-multipart>=0.0.34",
+    "uvicorn[standard]>=0.54.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-python-dotenv = ">=1.0.0"
-boto3 = ">=1.36.16,<2.0.0"
-pillow = ">=11.1.0,<12.0.0"
-pytest = ">=8.3.4,<9.0.0"
-pathlib = ">=1.0.1,<2.0.0"
-python-json-logger = ">=3.2.1,<4.0.0"
-fastapi = ">=0.104.0,<1.0.0"
-uvicorn = {extras = ["standard"], version = ">=0.24.0,<1.0.0"}
-python-multipart = ">=0.0.6,<1.0.0"
-pydantic = ">=2.4.2,<3.0.0"
-pydantic-settings = ">=2.0.3,<3.0.0"
-pytest-asyncio = "^0.25.3"
-httpx = "^0.28.1"
+[project.scripts]
+brutus-analyze = "brutus.cli:main"
 
-[tool.poetry.group.dev.dependencies]
-black = ">=23.11.0,<24.0.0"
-isort = ">=5.12.0,<6.0.0"
-mypy = ">=1.7.0,<2.0.0"
-flake8 = ">=6.1.0,<7.0.0"
-httpx = ">=0.25.0,<1.0.0"
-pytest = "^8.3.4"
-pytest-asyncio = ">=0.21.1,<1.0.0"
-pytest-cov = ">=4.1.0,<5.0.0"
-taskipy = ">=1.12.0,<2.0.0"
+[dependency-groups]
+dev = [
+    "boto3-stubs[polly,rekognition]>=1.44.9",
+    "httpx2>=2.16.2",
+    "mypy>=2.4.1",
+    "pytest>=9.2.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.17.6",
+    "taskipy>=1.14.1",
+]
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.13.9,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "brutus"
 
 [tool.taskipy.tasks]
-start = "uvicorn api:app --host 0.0.0.0 --port 8000"
-dev = "uvicorn api:app --host 127.0.0.1 --port 8000 --reload"
-test = "pytest tests/ -v"
-lint = "flake8 ."
-format = "black ."
-check = "mypy ."
-
+start = "uvicorn brutus.api:create_app --factory --log-config logging.json --host 0.0.0.0 --port 8000"
+dev = "uvicorn brutus.api:create_app --factory --log-config logging.json --host 127.0.0.1 --port 8000 --reload"
+test = 'pytest -m "not integration"'
+test-integration = "pytest -m integration"
+lint = "ruff check . && ruff format --check ."
+format = "ruff format . && ruff check --fix ."
+check = "mypy src tests"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+addopts = "--strict-markers"
 markers = [
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
-    "asyncio: mark test as an async test"
+    "integration: calls real AWS services (needs AWS SSO login)",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py310']
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.15"
 strict = true
 plugins = ["pydantic.mypy"]
-ignore_missing_imports = true
-check_untyped_defs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_return_any = true
-warn_unreachable = true
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = "E203"
-exclude = [".git", "__pycache__", "build", "dist"]
